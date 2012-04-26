@@ -40,8 +40,50 @@ namespace TicTacToe
 			}
 		}
 
+        private static void DrawBoard(string[] board)
+        {
+            Console.WriteLine("Board Goes Here");
+            Console.Write(" ");
+            Console.Write(board[0]);
+            Console.Write(" ");
+            Console.Write("|");
+            Console.Write(" ");
+            Console.Write(board[1]);
+            Console.Write(" ");
+            Console.Write("|");
+            Console.Write(" ");
+            Console.WriteLine(board[2]);
+            Console.WriteLine("--------");
+            Console.Write(" ");
+            Console.Write(board[3]);
+            Console.Write(" ");
+            Console.Write("|");
+            Console.Write(" ");
+            Console.Write(board[4]);
+            Console.Write(" ");
+            Console.Write("|");
+            Console.Write(" ");
+            Console.WriteLine(board[5]);
+            Console.WriteLine("--------");
+            Console.Write(" ");
+            Console.Write(board[6]);
+            Console.Write(" ");
+            Console.Write("|");
+            Console.Write(" ");
+            Console.Write(board[7]);
+            Console.Write(" ");
+            Console.Write("|");
+            Console.Write(" ");
+            Console.WriteLine(board[8]);
+
+            
+        }
+
 		private static void PlayGame()
 		{
+            string[] board = new string[9];
+
+            DrawBoard(board);
 			// TODO:
 			// 1. create an string array that will store the positions of all 9 spaces on the board
 			// 2. create a method that will take the string array as a parameter and return a string
