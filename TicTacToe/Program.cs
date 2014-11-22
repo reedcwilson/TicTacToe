@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace TicTacToe
 {
@@ -9,11 +8,13 @@ namespace TicTacToe
 	{
 		static void Main(string[] args)
 		{
-			bool stillPlaying = true;
+			var stillPlaying = true;
 
+			Console.ForegroundColor = ConsoleColor.DarkGreen;
 			Console.WriteLine("-----------------------");
 			Console.WriteLine("Welcome to Tic Tac Toe!");
 			Console.WriteLine("-----------------------\n");
+			Console.ResetColor();
 
 			while (stillPlaying)
 			{
@@ -23,103 +24,222 @@ namespace TicTacToe
 
 				Console.Write("Type a number and hit <enter>: ");
 
-				string choice = Console.ReadLine();
+				var choice = GetUserInput("[12]");
 
 				switch(choice)
 				{
 					case "1":
 						PlayGame();
+						Console.Clear();
 						break;
 					case "2":
 						stillPlaying = false;
-						break;
-					default:
-						Console.WriteLine("Please enter a valid number...");
 						break;
 				}
 			}
 		}
 
-        private static void DrawBoard(string[] board)
-        {
-            Console.WriteLine("Board Goes Here");
-            Console.Write(" ");
-            Console.Write(board[0]);
-            Console.Write(" ");
-            Console.Write("|");
-            Console.Write(" ");
-            Console.Write(board[1]);
-            Console.Write(" ");
-            Console.Write("|");
-            Console.Write(" ");
-            Console.WriteLine(board[2]);
-            Console.WriteLine("--------");
-            Console.Write(" ");
-            Console.Write(board[3]);
-            Console.Write(" ");
-            Console.Write("|");
-            Console.Write(" ");
-            Console.Write(board[4]);
-            Console.Write(" ");
-            Console.Write("|");
-            Console.Write(" ");
-            Console.WriteLine(board[5]);
-            Console.WriteLine("--------");
-            Console.Write(" ");
-            Console.Write(board[6]);
-            Console.Write(" ");
-            Console.Write("|");
-            Console.Write(" ");
-            Console.Write(board[7]);
-            Console.Write(" ");
-            Console.Write("|");
-            Console.Write(" ");
-            Console.WriteLine(board[8]);
+		private static string GetUserInput(string validPattern = null)
+		{
+			var input = Console.ReadLine();
+			input = input.Trim();
 
-            
-        }
+			if (validPattern != null && !System.Text.RegularExpressions.Regex.IsMatch(input, validPattern))
+			{
+				Console.ForegroundColor = ConsoleColor.DarkRed;
+				Console.WriteLine("\"" + input + "\" is not valid.\n");
+				Console.ResetColor();
+				return null;
+			}
+
+			return input;
+		}
 
 		private static void PlayGame()
 		{
-            string[] board = new string[9];
+		private static void AnnounceResult(string message, string[] board)
+		{
+			Console.WriteLine();
+			DrawBoard(board);
 
-            DrawBoard(board);
-			// TODO:
-			// 1. create an string array that will store the positions of all 9 spaces on the board
-			// 2. create a method that will take the string array as a parameter and return a string
-			//    indicating who wins (null = no win, "X" = x wins, "O" = o wins). Use IsBoardFull() as an example
-			// 3. make a loop that keeps going until either someone has won or the board is full
-			// 4. create a method that takes the string array as a parameter and can output the board
-			// 5. ask the user to type a number indicating where they would like to put their x or o
-			// 6. make sure that the user typed in a valid option
-			// 7. announce the result of the game
+			Console.ForegroundColor = ConsoleColor.DarkGreen;
+			Console.WriteLine(message);
+			Console.ResetColor();
+
+			Console.Write("\nPress any key to continue...");
+			Console.CursorVisible = false;
+			Console.ReadKey();
+			Console.CursorVisible = true;
 		}
 
-		private static bool IsBoardFull(string[] board)
+		private static int GetXOLocation(string[] board)
+		{
+			int numRows = (int)Math.Sqrt(board.Length);
+
+			int curRow = 0, curCol = 0;
+			
+			for (int i = 0; i < board.Length; i++)
+			{
+				if (board[i] == null)
+				{
+					curRow = i / numRows;
+					curCol = i % numRows;
+					break;
+				}
+			}
+
+			while (true)
+			{
+				Console.SetCursorPosition(curCol * 4 + 2, curRow * 4 + 3);
+				var keyInfo = Console.ReadKey();
+				Console.SetCursorPosition(curCol * 4 + 2, curRow * 4 + 3);
+				Console.Write(board[curRow * numRows + curCol] ?? " ");
+
+				switch (keyInfo.Key)
+				{
+					case ConsoleKey.LeftArrow:
+						if (curCol > 0)
+							curCol--;
+						break;
+					case ConsoleKey.RightArrow:
+						if (curCol + 1 < numRows)
+							curCol++;
+						break;
+					case ConsoleKey.UpArrow:
+						if (curRow > 0)
+							curRow--;
+						break;
+					case ConsoleKey.DownArrow:
+						if (curRow + 1 < numRows)
+							curRow++;
+						break;
+					case ConsoleKey.Spacebar:
+					case ConsoleKey.Enter:
+						if (board[curRow * numRows + curCol] == null)
+							return curRow * numRows + curCol;
+						break;
+				}
+			}
+		}
+
+		private static void DrawBoard(string[] board)
+		{
+			var numRows = (int)Math.Sqrt(board.Length);
+
+			Console.WriteLine();
+
+			for (int row = 0; row < numRows; row++)
+			{
+				if (row != 0)
+					Console.WriteLine(" " + string.Join("|", Enumerable.Repeat("---", numRows)));
+
+				Console.Write(" " + string.Join("|", Enumerable.Repeat("   ", numRows)) + "\n ");
+
+				for (int col = 0; col < numRows; col++)
+				{
+					if (col != 0)
+						Console.Write("|");
+					var space = board[row * numRows + col] ?? " ";
+					if (space.Length > 1)
+						Console.ForegroundColor = ConsoleColor.DarkGreen;
+					Console.Write(" " + space[0] + " ");
+					Console.ResetColor();
+				}
+
+				Console.WriteLine("\n " + string.Join("|", Enumerable.Repeat("   ", numRows)));
+			}
+
+			Console.WriteLine();
+		}
+
+		private static bool IsBoardFull(IEnumerable<string> board)
 		{
 			return board.All(space => space != null);
 		}
 
-		private static bool IsBoardFullAlt(string[] board)
+		private static string WhoWins(string[] board)
 		{
-			for (int i = 0; i < board.Length; i++)
+			var numRows = (int)Math.Sqrt(board.Length);
+			
+			// Check rows
+			for (int row = 0; row < numRows; row++)
 			{
-				if (board[i] == null)
-					return false;
+				if (board[row * numRows] != null)
+				{
+					bool hasTicTacToe = true;
+					for (int col = 1; col < numRows && hasTicTacToe; col++)
+					{
+						if (board[row * numRows + col] != board[row * numRows])
+							hasTicTacToe = false;
+					}
+					if (hasTicTacToe)
+					{
+						// Put an indicator in the board to know which ones are part of the tic tac toe
+						for (int col = 0; col < numRows; col++)
+							board[row * numRows + col] += "!";
+						return board[row * numRows];
+					}
+				}
 			}
 
-			return true;
-		}
-
-		private static bool IsBoardFullAlt2(string[] board)
-		{
-			foreach (string space in board)
+			// Check columns
+			for (int col = 0; col < numRows; col++)
 			{
-				if (space == null)
-					return false;
+				if (board[col] != null)
+				{
+					bool hasTicTacToe = true;
+					for (int row = 1; row < numRows && hasTicTacToe; row++)
+					{
+						if (board[row * numRows + col] != board[col])
+							hasTicTacToe = false;
+					}
+					if (hasTicTacToe)
+					{
+						// Put an indicator in the board to know which ones are part of the tic tac toe
+						for (int row = 0; row < numRows; row++)
+							board[row * numRows + col] += "!";
+						return board[col];
+					}
+				}
 			}
 
-			return true;
+			// Check top left -> bottom right diagonal
+			if (board[0] != null)
+			{
+				bool hasTicTacToe = true;
+				for (int row = 1; row < numRows && hasTicTacToe; row++)
+				{
+					if (board[row * numRows + row] != board[0])
+						hasTicTacToe = false;
+				}
+				if (hasTicTacToe)
+				{
+					// Put an indicator in the board to know which ones are part of the tic tac toe
+					for (int row = 0; row < numRows; row++)
+						board[row * numRows + row] += "!";
+					return board[0];
+				}
+			}
+
+			// Check top right -> bottom left diagonal
+			if (board[numRows - 1] != null)
+			{
+				bool hasTicTacToe = true;
+				for (int row = 1; row < numRows && hasTicTacToe; row++)
+				{
+					if (board[row * numRows + (numRows - 1 - row)] != board[numRows - 1])
+						hasTicTacToe = false;
+				}
+				if (hasTicTacToe)
+				{
+					// Put an indicator in the board to know which ones are part of the tic tac toe
+					for (int row = 0; row < numRows; row++)
+						board[row * numRows + (numRows - 1 - row)] += "!";
+					return board[numRows - 1];
+				}
+			}
+
+			return null;
 		}
 	}
 }
